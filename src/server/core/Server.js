@@ -19,6 +19,7 @@ function Server(config)
     this.onError               = this.onError.bind(this);
     this.serveModalConfig      = this.serveModalConfig.bind(this);
     this.ensureRoom            = this.ensureRoom.bind(this);
+    this.listRooms             = this.listRooms.bind(this);
 
     this.launcherUrl = process.env.CURVYTRON_LAUNCHER_URL || null;
 
@@ -27,6 +28,7 @@ function Server(config)
 
     if (this.launcherUrl) {
         this.app.put('/rooms/:name', this.ensureRoom);
+        this.app.get('/rooms', this.listRooms);
     }
 
     this.server.on('error', this.onError);
@@ -90,6 +92,18 @@ Server.prototype.ensureRoom = function(request, response)
     }
 
     response.status(this.roomRepository.create(name) ? 201 : 409).end();
+};
+
+/**
+ * List this server's rooms as the lobby shows them
+ *
+ * @param {Object} request
+ * @param {Object} response
+ */
+Server.prototype.listRooms = function(request, response)
+{
+    response.set('Cache-Control', 'no-store');
+    response.json(this.roomRepository.all().map(function (room) { return room.serialize(false); }));
 };
 
 /**

@@ -31,5 +31,6 @@ Set `CURVYTRON_LAUNCHER_URL` to a launcher that maps room names to [Modal Sticky
 * Creating a room from the lobby navigates to `<launcher>/room/<name>` instead of creating it on the current server.
 * Joining a room that the current server doesn't have, for example one that closed after everyone left, navigates to `<launcher>/room/<name>` instead of the lobby.
 * `PUT /rooms/:name` creates the room unless it already exists (`201` when created, `200` when it exists), so the launcher can open a room on the server that holds its session.
+* `GET /rooms` lists the server's rooms, so the launcher can collect them from every server at `<launcher>/rooms`. The lobby polls that list and also shows rooms hosted on other servers, which it joins through `<launcher>/room/<name>`.
 
 Without it, Curvytron behaves as upstream.

@@ -103,6 +103,12 @@ RoomsController.prototype.onCreateRoom = function(result)
  */
 RoomsController.prototype.joinRoom = function(room)
 {
+    if (room.remote) {
+        window.location.assign(Launcher.roomUrl(room.name, room.open ? null : room.password));
+
+        return;
+    }
+
     if (room.open) {
         this.$location.path(room.getUrl());
     } else if (room.password && room.password.match(new RegExp('[0-9]{4}'))) {

@@ -16,10 +16,21 @@ function RoomsRepository(client)
     this.onRoomPlayers    = this.onRoomPlayers.bind(this);
     this.onRoomGame       = this.onRoomGame.bind(this);
     this.onRoomConfigOpen = this.onRoomConfigOpen.bind(this);
+    this.fetchRemoteRooms = this.fetchRemoteRooms.bind(this);
+    this.onRemoteRooms    = this.onRemoteRooms.bind(this);
+
+    this.remoteLoop = null;
 }
 
 RoomsRepository.prototype = Object.create(EventEmitter.prototype);
 RoomsRepository.prototype.constructor = RoomsRepository;
+
+/**
+ * How often to refresh rooms hosted on other servers, in milliseconds
+ *
+ * @type {Number}
+ */
+RoomsRepository.prototype.remoteInterval = 5000;
 
 /**
  * Attach events
@@ -103,7 +114,12 @@ RoomsRepository.prototype.createRoom = function(data)
  */
 RoomsRepository.prototype.onRoomOpen = function(e)
 {
-    var room = this.createRoom(e.detail);
+    var existing = this.get(e.detail.name),
+        room     = this.createRoom(e.detail);
+
+    if (existing && existing.remote) {
+        this.rooms.remove(existing);
+    }
 
     if(this.rooms.add(room)) {
         this.emit('room:open', {room: room});
@@ -185,6 +201,11 @@ RoomsRepository.prototype.start = function()
     if (this.client.connected) {
         this.attachEvents();
         this.client.addEvent('room:fetch');
+
+        if (Launcher.url() && !this.remoteLoop) {
+            this.fetchRemoteRooms();
+            this.remoteLoop = setInterval(this.fetchRemoteRooms, this.remoteInterval);
+        }
     } else {
         this.client.on('connected', this.start);
     }
@@ -195,6 +216,59 @@ RoomsRepository.prototype.start = function()
  */
 RoomsRepository.prototype.stop = function()
 {
+    clearInterval(this.remoteLoop);
+    this.remoteLoop = null;
+
     this.detachEvents();
     this.rooms.clear();
+};
+
+/**
+ * Fetch the rooms on every server from the launcher
+ */
+RoomsRepository.prototype.fetchRemoteRooms = function()
+{
+    fetch(Launcher.roomsUrl())
+        .then(function (response) { return response.json(); })
+        .then(this.onRemoteRooms, function (error) { console.error('Could not list rooms: %s', error); });
+};
+
+/**
+ * List rooms hosted on other servers, which the lobby joins through the launcher
+ *
+ * @param {Array} list
+ */
+RoomsRepository.prototype.onRemoteRooms = function(list)
+{
+    if (!this.remoteLoop) {
+        return;
+    }
+
+    var repository = this,
+        names      = {},
+        room, i;
+
+    for (i = list.length - 1; i >= 0; i--) {
+        names[list[i].name] = true;
+        room = this.get(list[i].name);
+
+        if (!room) {
+            room = this.createRoom(list[i]);
+            room.remote = true;
+
+            if (this.rooms.add(room)) {
+                this.emit('room:open', {room: room});
+            }
+        } else if (room.remote) {
+            room.players = list[i].players;
+            room.game    = list[i].game;
+            room.open    = list[i].open;
+            this.emit('room:players', room);
+        }
+    }
+
+    this.rooms.filter(function () { return this.remote && !names[this.name]; }).walk(function () {
+        repository.rooms.remove(this);
+        repository.emit('room:close', this);
+    });
 };

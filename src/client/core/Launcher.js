@@ -17,10 +17,21 @@ Launcher.url = function()
  * Get the launcher URL that opens the given room
  *
  * @param {String} name
+ * @param {String} password
  *
  * @return {String}
  */
-Launcher.roomUrl = function(name)
+Launcher.roomUrl = function(name, password)
 {
-    return Launcher.url() + '/room/' + encodeURIComponent(name);
+    return Launcher.url() + '/room/' + encodeURIComponent(name) + (password ? '?password=' + encodeURIComponent(password) : '');
+};
+
+/**
+ * Get the URL listing the rooms on every server
+ *
+ * @return {String}
+ */
+Launcher.roomsUrl = function()
+{
+    return Launcher.url() + '/rooms';
 };
