@@ -12,12 +12,6 @@
  */
 function RoomController($scope, $routeParams, $location, client, repository, profile, chat, notifier)
 {
-    if (Launcher.servesPage()) {
-        window.location.replace(Launcher.roomUrl(decodeURIComponent($routeParams.name)));
-
-        return;
-    }
-
     AbstractController.call(this, $scope);
 
     document.body.classList.remove('game-mode');
