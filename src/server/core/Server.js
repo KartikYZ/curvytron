@@ -17,8 +17,17 @@ function Server(config)
     this.onSocketConnection    = this.onSocketConnection.bind(this);
     this.onSocketDisconnection = this.onSocketDisconnection.bind(this);
     this.onError               = this.onError.bind(this);
+    this.serveModalConfig      = this.serveModalConfig.bind(this);
+    this.ensureRoom            = this.ensureRoom.bind(this);
+
+    this.launcherUrl = process.env.CURVYTRON_LAUNCHER_URL || null;
 
     this.app.use(express['static']('web'));
+    this.app.get('/modal.js', this.serveModalConfig);
+
+    if (this.launcherUrl) {
+        this.app.put('/rooms/:name', this.ensureRoom);
+    }
 
     this.server.on('error', this.onError);
     this.server.on('upgrade', this.authorizationHandler);
@@ -47,6 +56,40 @@ Server.prototype.authorizationHandler = function(request, socket, head)
         ip = request.headers['x-real-ip'] || request.connection.remoteAddress;
 
     return this.onSocketConnection(websocket, ip);
+};
+
+/**
+ * Serve the Modal launcher URL to the client
+ *
+ * @param {Object} request
+ * @param {Object} response
+ */
+Server.prototype.serveModalConfig = function(request, response)
+{
+    response.set('Cache-Control', 'no-store');
+    response.type('application/javascript');
+    response.send('window.CURVYTRON_LAUNCHER_URL = ' + JSON.stringify(this.launcherUrl) + ';');
+};
+
+/**
+ * Create a room unless it already exists
+ *
+ * @param {Object} request
+ * @param {Object} response
+ */
+Server.prototype.ensureRoom = function(request, response)
+{
+    var name = request.params.name.substr(0, BaseRoom.prototype.maxLength).trim();
+
+    if (!name) {
+        return response.status(400).end();
+    }
+
+    if (this.roomRepository.get(name)) {
+        return response.status(200).end();
+    }
+
+    response.status(this.roomRepository.create(name) ? 201 : 409).end();
 };
 
 /**

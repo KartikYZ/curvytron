@@ -73,6 +73,14 @@ RoomsController.prototype.detachEvents = function()
  */
 RoomsController.prototype.createRoom = function(e)
 {
+    if (window.CURVYTRON_LAUNCHER_URL) {
+        var name = (this.$scope.roomName || '').substr(0, Room.prototype.maxLength).trim();
+
+        window.location.assign(window.CURVYTRON_LAUNCHER_URL + (name ? '/room/' + encodeURIComponent(name) : '/'));
+
+        return;
+    }
+
     this.repository.create(this.$scope.roomName, this.onCreateRoom);
 };
 
