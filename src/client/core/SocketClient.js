@@ -10,6 +10,13 @@ function SocketClient()
     this.onOpen       = this.onOpen.bind(this);
     this.onConnection = this.onConnection.bind(this);
 
+    if (Launcher.servesPage()) {
+        BaseSocketClient.call(this, {send: function () {}, addEventListener: function () {}, removeEventListener: function () {}});
+        setTimeout(this.onConnection, 0, null);
+
+        return;
+    }
+
     var Socket = window.MozWebSocket || window.WebSocket;
 
     var protocol = 'ws://';

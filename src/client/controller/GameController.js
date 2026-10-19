@@ -10,6 +10,12 @@
  */
 function GameController($scope, $routeParams, $location, client, repository, chat, radio, sound)
 {
+    if (Launcher.servesPage()) {
+        window.location.replace(Launcher.roomUrl(decodeURIComponent($routeParams.name)));
+
+        return;
+    }
+
     AbstractController.call(this, $scope);
 
     document.body.classList.add('game-mode');
