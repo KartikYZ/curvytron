@@ -29,7 +29,6 @@ Set `CURVYTRON_LAUNCHER_URL` to a launcher that maps room names to [Modal Sticky
 
 * `/modal.js` exposes the launcher URL to the client.
 * Creating a room from the lobby navigates to `<launcher>/room/<name>` instead of creating it on the current server.
-* The room page shows `<launcher>/room/<name>` as its invite link.
 * `PUT /rooms/:name` creates the room unless it already exists (`201` when created, `200` when it exists), so the launcher can open a room on the server that holds its session.
 
 Without it, Curvytron behaves as upstream.

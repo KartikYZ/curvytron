@@ -5,11 +5,6 @@
             <i class="icon-params" ng-click="toggleParameters()" ng-class="{'active': displayParameters}"></i>
         </h2>
 
-        <p class="invite-link" ng-if="::inviteUrl">
-            <label for="invite-url">Invite link:</label>
-            <input id="invite-url" type="text" class="form-control" value="{{ ::inviteUrl }}" readonly onfocus="this.select()" />
-        </p>
-
         <div id="room-parameters" ng-controller="RoomConfigController" ng-if="displayParameters">
             <ng-include src="'js/views/rooms/parameters.html'"></ng-include>
         </div>

@@ -75,7 +75,6 @@ function RoomController($scope, $routeParams, $location, client, repository, pro
     this.$scope.displayParameters = false;
     this.$scope.$parent.profile   = true;
     this.$scope.launching         = false;
-    this.$scope.inviteUrl         = window.CURVYTRON_LAUNCHER_URL ? window.CURVYTRON_LAUNCHER_URL + '/room/' + encodeURIComponent(this.name) : null;
 
     this.repository.start();
     gamepadListener.start();
