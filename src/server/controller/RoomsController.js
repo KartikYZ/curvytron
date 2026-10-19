@@ -131,7 +131,7 @@ RoomsController.prototype.onJoinRoom = function(client, data, callback)
     var room = this.repository.get(data.name);
 
     if (!room) {
-        return callback({success: false, error: 'Unknown room "' + data.name + '".'});
+        return callback({success: false, unknown: true, error: 'Unknown room "' + data.name + '".'});
     }
 
     var password = typeof(data.password) !== 'undefined' ? data.password : null;

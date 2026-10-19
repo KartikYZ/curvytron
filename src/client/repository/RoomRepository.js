@@ -124,6 +124,7 @@ RoomRepository.prototype.join = function(name, password, callback)
             callback({
                 success: false,
                 name: name,
+                unknown: result.unknown === true,
                 error: typeof(result.error) !== 'undefined' ? result.error : 'Unknown error'
             });
         }

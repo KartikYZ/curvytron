@@ -127,6 +127,8 @@ RoomController.prototype.onJoined = function(result)
         this.attachEvents();
         this.addProfileUser();
         this.requestDigestScope();
+    } else if (result.unknown && Launcher.url()) {
+        window.location.replace(Launcher.roomUrl(this.name));
     } else {
         console.error('Could not join room %s: %s', result.name, result.error);
         this.goHome();
