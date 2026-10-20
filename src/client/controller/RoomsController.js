@@ -9,6 +9,8 @@ function RoomsController($scope, $location, client)
 {
     AbstractController.call(this, $scope);
 
+    Launcher.firstRoute = false;
+
     document.body.classList.remove('game-mode');
 
     this.$location  = $location;
@@ -74,7 +76,9 @@ RoomsController.prototype.detachEvents = function()
 RoomsController.prototype.createRoom = function(e)
 {
     if (Launcher.url()) {
-        window.location.assign(Launcher.roomUrl((this.$scope.roomName || '').substr(0, Room.prototype.maxLength).trim()));
+        var name = (this.$scope.roomName || '').substr(0, Room.prototype.maxLength).trim();
+
+        Launcher.open(name || 'room-' + Math.random().toString(16).substr(2, 6));
 
         return;
     }
@@ -103,8 +107,8 @@ RoomsController.prototype.onCreateRoom = function(result)
  */
 RoomsController.prototype.joinRoom = function(room)
 {
-    if (room.remote) {
-        window.location.assign(Launcher.roomUrl(room.name, room.open ? null : room.password));
+    if (Launcher.url()) {
+        Launcher.open(room.name, room.open ? null : room.password);
 
         return;
     }

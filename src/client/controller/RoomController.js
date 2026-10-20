@@ -12,6 +12,12 @@
  */
 function RoomController($scope, $routeParams, $location, client, repository, profile, chat, notifier)
 {
+    if (Launcher.mustOpen(decodeURIComponent($routeParams.name))) {
+        Launcher.open(decodeURIComponent($routeParams.name), $location.search().password, true);
+
+        return;
+    }
+
     AbstractController.call(this, $scope);
 
     document.body.classList.remove('game-mode');
@@ -122,7 +128,7 @@ RoomController.prototype.onJoined = function(result)
         this.addProfileUser();
         this.requestDigestScope();
     } else if (result.unknown && Launcher.url()) {
-        window.location.replace(Launcher.roomUrl(this.name, this.password));
+        Launcher.open(this.name, this.password, true);
     } else {
         console.error('Could not join room %s: %s', result.name, result.error);
         this.goHome();

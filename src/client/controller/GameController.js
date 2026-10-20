@@ -10,6 +10,8 @@
  */
 function GameController($scope, $routeParams, $location, client, repository, chat, radio, sound)
 {
+    Launcher.firstRoute = false;
+
     AbstractController.call(this, $scope);
 
     document.body.classList.add('game-mode');
